@@ -1,0 +1,33 @@
+name: Build Windows EXE
+
+on:
+  push:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install pyinstaller pandas regex pillow pyperclip
+    
+    - name: Build EXE with PyInstaller
+      run: |
+        pyinstaller --onefile --name equity_structure --hidden-import pandas --hidden-import regex --hidden-import pyperclip equity_structure.py
+    
+    - name: Upload artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: equity_structure_exe
+        path: dist/equity_structure.exe
